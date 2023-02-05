@@ -12,7 +12,7 @@ export { getConfiguredGoTools } from './getConfiguredGoTools';
 export { getCurrentGoPath } from './getCurrentGoPath';
 export { getCurrentGoRoot } from './getCurrentGoRoot';
 export { extractFunction, extractVariable } from '../goDoctor';
-export { runFillStruct } from '../goFillStruct';
+export { runFillStruct, runRefillStruct } from '../goFillStruct';
 export { implCursor } from '../goImpl';
 export { addTags, removeTags } from '../goModifytags';
 export * from '../goTest';

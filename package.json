@@ -412,6 +412,11 @@
         "description": "Fill a struct literal with default values"
       },
       {
+        "command": "go.refill.struct",
+        "title": "Go: Refill struct",
+        "description": "Refill a struct literal with default values"
+      },
+      {
         "command": "go.show.commands",
         "title": "Go: Show All Commands...",
         "description": "Shows all commands from the Go extension in the quick pick"
@@ -1819,6 +1824,11 @@
               "default": true,
               "description": "If true, adds command to fill struct literal with default values to the editor context menu"
             },
+            "refillStruct": {
+              "type": "boolean",
+              "default": true,
+              "description": "If true, adds command to fill struct literal with default values to the editor context menu"
+            },
             "testAtCursor": {
               "type": "boolean",
               "default": false,
@@ -2736,6 +2746,11 @@
         {
           "when": "editorTextFocus && config.go.editorContextMenuCommands.fillStruct && resourceLangId == go",
           "command": "go.fill.struct",
+          "group": "Go group 1"
+        },
+        {
+          "when": "editorTextFocus && config.go.editorContextMenuCommands.refillStruct && resourceLangId == go",
+          "command": "go.refill.struct",
           "group": "Go group 1"
         },
         {

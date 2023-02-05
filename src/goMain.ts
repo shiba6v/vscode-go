@@ -140,6 +140,7 @@ export async function activate(ctx: vscode.ExtensionContext): Promise<ExtensionA
 	registerCommand('go.add.tags', commands.addTags);
 	registerCommand('go.remove.tags', commands.removeTags);
 	registerCommand('go.fill.struct', commands.runFillStruct);
+	registerCommand('go.refill.struct', commands.runRefillStruct);
 	registerCommand('go.impl.cursor', commands.implCursor);
 	registerCommand('go.godoctor.extract', commands.extractFunction);
 	registerCommand('go.godoctor.var', commands.extractVariable);

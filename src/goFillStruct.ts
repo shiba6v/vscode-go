@@ -20,6 +20,16 @@ interface GoFillStructOutput {
 	code: string;
 }
 
+export const runRefillStruct: CommandFactory = () => (editor = vscode.window.activeTextEditor) => {
+	if (!editor) return Promise.resolve();
+	const args = getCommonArgs(editor);
+	if (!args) {
+		return Promise.reject('No args');
+	}
+
+	return execFillStruct(editor, args, 'refillstruct');
+};
+
 export const runFillStruct: CommandFactory = () => (editor = vscode.window.activeTextEditor) => {
 	if (!editor) return Promise.resolve();
 	const args = getCommonArgs(editor);
@@ -27,7 +37,7 @@ export const runFillStruct: CommandFactory = () => (editor = vscode.window.activ
 		return Promise.reject('No args');
 	}
 
-	return execFillStruct(editor, args);
+	return execFillStruct(editor, args, 'fillstruct');
 };
 
 function getCommonArgs(editor: vscode.TextEditor): string[] | undefined {
@@ -57,16 +67,17 @@ function getTabsCount(editor: vscode.TextEditor): number {
 	return tabs ? tabs.length : 0;
 }
 
-function execFillStruct(editor: vscode.TextEditor, args: string[]): Promise<void> {
-	const fillstruct = getBinPath('fillstruct');
+function execFillStruct(editor: vscode.TextEditor, args: string[], command: string): Promise<void> {
+	const fillstruct = getBinPath(command);
 	const input = getFileArchive(editor.document);
 	const tabsCount = getTabsCount(editor);
 
 	return new Promise<void>((resolve, reject) => {
 		const p = cp.execFile(fillstruct, args, { env: toolExecutionEnvironment() }, (err, stdout, stderr) => {
 			try {
+				console.log(stderr);
 				if (err && (<any>err).code === 'ENOENT') {
-					promptForMissingTool('fillstruct');
+					promptForMissingTool(command);
 					return reject();
 				}
 				if (err) {
