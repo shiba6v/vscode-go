@@ -825,87 +825,87 @@ export function runTool(
 	});
 }
 
-export function handleDiagnosticErrors(
-	goCtx: GoExtensionContext,
-	document: vscode.TextDocument | undefined,
-	errors: ICheckResult[],
-	diagnosticCollection?: vscode.DiagnosticCollection,
-	diagnosticSource?: string
-) {
-	diagnosticCollection?.clear();
+// export function handleDiagnosticErrors(
+// 	goCtx: GoExtensionContext,
+// 	document: vscode.TextDocument | undefined,
+// 	errors: ICheckResult[],
+// 	diagnosticCollection?: vscode.DiagnosticCollection,
+// 	diagnosticSource?: string
+// ) {
+// 	diagnosticCollection?.clear();
 
-	const diagnosticMap: Map<string, vscode.Diagnostic[]> = new Map();
+// 	const diagnosticMap: Map<string, vscode.Diagnostic[]> = new Map();
 
-	const textDocumentMap: Map<string, vscode.TextDocument> = new Map();
-	if (document) {
-		textDocumentMap.set(document.uri.toString(), document);
-	}
-	// Also add other open .go files known to vscode for fast lookup.
-	vscode.workspace.textDocuments.forEach((t) => {
-		const fileName = t.uri.toString();
-		if (!fileName.endsWith('.go')) {
-			return;
-		}
-		textDocumentMap.set(fileName, t);
-	});
+// 	const textDocumentMap: Map<string, vscode.TextDocument> = new Map();
+// 	if (document) {
+// 		textDocumentMap.set(document.uri.toString(), document);
+// 	}
+// 	// Also add other open .go files known to vscode for fast lookup.
+// 	vscode.workspace.textDocuments.forEach((t) => {
+// 		const fileName = t.uri.toString();
+// 		if (!fileName.endsWith('.go')) {
+// 			return;
+// 		}
+// 		textDocumentMap.set(fileName, t);
+// 	});
 
-	errors.forEach((error) => {
-		const canonicalFile = vscode.Uri.file(error.file).toString();
-		let startColumn = error.col ? error.col - 1 : 0;
-		let endColumn = startColumn + 1;
-		// Some tools output only the line number or the start position.
-		// If the file content is available, adjust the diagnostic range so
-		// the squiggly underline for the error message is more visible.
-		const doc = textDocumentMap.get(canonicalFile);
-		if (doc) {
-			const tempRange = new vscode.Range(
-				error.line - 1,
-				0,
-				error.line - 1,
-				doc.lineAt(error.line - 1).range.end.character + 1 // end of the line
-			);
-			const text = doc.getText(tempRange);
-			const [, leading, trailing] = /^(\s*).*(\s*)$/.exec(text)!;
-			if (!error.col) {
-				startColumn = leading.length; // beginning of the non-white space.
-			} else {
-				startColumn = error.col - 1; // range is 0-indexed
-			}
-			endColumn = text.length - trailing.length;
-		}
-		const range = new vscode.Range(error.line - 1, startColumn, error.line - 1, endColumn);
-		const severity = mapSeverityToVSCodeSeverity(error.severity);
-		const diagnostic = new vscode.Diagnostic(range, error.msg, severity);
-		// vscode uses source for deduping diagnostics.
-		diagnostic.source = diagnosticSource || diagnosticCollection?.name;
-		let diagnostics = diagnosticMap.get(canonicalFile);
-		if (!diagnostics) {
-			diagnostics = [];
-		}
-		diagnostics.push(diagnostic);
-		diagnosticMap.set(canonicalFile, diagnostics);
-	});
+// 	errors.forEach((error) => {
+// 		const canonicalFile = vscode.Uri.file(error.file).toString();
+// 		let startColumn = error.col ? error.col - 1 : 0;
+// 		let endColumn = startColumn + 1;
+// 		// Some tools output only the line number or the start position.
+// 		// If the file content is available, adjust the diagnostic range so
+// 		// the squiggly underline for the error message is more visible.
+// 		const doc = textDocumentMap.get(canonicalFile);
+// 		if (doc) {
+// 			const tempRange = new vscode.Range(
+// 				error.line - 1,
+// 				0,
+// 				error.line - 1,
+// 				doc.lineAt(error.line - 1).range.end.character + 1 // end of the line
+// 			);
+// 			const text = doc.getText(tempRange);
+// 			const [, leading, trailing] = /^(\s*).*(\s*)$/.exec(text)!;
+// 			if (!error.col) {
+// 				startColumn = leading.length; // beginning of the non-white space.
+// 			} else {
+// 				startColumn = error.col - 1; // range is 0-indexed
+// 			}
+// 			endColumn = text.length - trailing.length;
+// 		}
+// 		const range = new vscode.Range(error.line - 1, startColumn, error.line - 1, endColumn);
+// 		const severity = mapSeverityToVSCodeSeverity(error.severity);
+// 		const diagnostic = new vscode.Diagnostic(range, error.msg, severity);
+// 		// vscode uses source for deduping diagnostics.
+// 		diagnostic.source = diagnosticSource || diagnosticCollection?.name;
+// 		let diagnostics = diagnosticMap.get(canonicalFile);
+// 		if (!diagnostics) {
+// 			diagnostics = [];
+// 		}
+// 		diagnostics.push(diagnostic);
+// 		diagnosticMap.set(canonicalFile, diagnostics);
+// 	});
 
-	diagnosticMap.forEach((newDiagnostics, file) => {
-		const fileUri = vscode.Uri.parse(file);
+// 	diagnosticMap.forEach((newDiagnostics, file) => {
+// 		const fileUri = vscode.Uri.parse(file);
 
-		const { buildDiagnosticCollection, lintDiagnosticCollection, vetDiagnosticCollection, languageClient } = goCtx;
-		if (diagnosticCollection === buildDiagnosticCollection) {
-			// If there are lint/vet warnings on current file, remove the ones co-inciding with the new build errors
-			removeDuplicateDiagnostics(lintDiagnosticCollection, fileUri, newDiagnostics);
-			removeDuplicateDiagnostics(vetDiagnosticCollection, fileUri, newDiagnostics);
-		} else if (buildDiagnosticCollection && buildDiagnosticCollection.has(fileUri)) {
-			// If there are build errors on current file, ignore the new lint/vet warnings co-inciding with them
-			newDiagnostics = deDupeDiagnostics(buildDiagnosticCollection.get(fileUri)!.slice(), newDiagnostics);
-		}
-		// If there are errors from the language client that are on the current file, ignore the warnings co-inciding
-		// with them.
-		if (languageClient && languageClient.diagnostics?.has(fileUri)) {
-			newDiagnostics = deDupeDiagnostics(languageClient.diagnostics.get(fileUri)!.slice(), newDiagnostics);
-		}
-		diagnosticCollection?.set(fileUri, newDiagnostics);
-	});
-}
+// 		const { buildDiagnosticCollection, lintDiagnosticCollection, vetDiagnosticCollection, languageClient } = goCtx;
+// 		if (diagnosticCollection === buildDiagnosticCollection) {
+// 			// If there are lint/vet warnings on current file, remove the ones co-inciding with the new build errors
+// 			removeDuplicateDiagnostics(lintDiagnosticCollection, fileUri, newDiagnostics);
+// 			removeDuplicateDiagnostics(vetDiagnosticCollection, fileUri, newDiagnostics);
+// 		} else if (buildDiagnosticCollection && buildDiagnosticCollection.has(fileUri)) {
+// 			// If there are build errors on current file, ignore the new lint/vet warnings co-inciding with them
+// 			newDiagnostics = deDupeDiagnostics(buildDiagnosticCollection.get(fileUri)!.slice(), newDiagnostics);
+// 		}
+// 		// If there are errors from the language client that are on the current file, ignore the warnings co-inciding
+// 		// with them.
+// 		if (languageClient && languageClient.diagnostics?.has(fileUri)) {
+// 			newDiagnostics = deDupeDiagnostics(languageClient.diagnostics.get(fileUri)!.slice(), newDiagnostics);
+// 		}
+// 		diagnosticCollection?.set(fileUri, newDiagnostics);
+// 	});
+// }
 
 /**
  * Removes any diagnostics in collection, where there is a diagnostic in

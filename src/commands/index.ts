@@ -7,21 +7,21 @@ import * as vscode from 'vscode';
 
 import { GoExtensionContext } from '../context';
 
-export { applyCoverprofile } from './applyCoverprofile';
-export { getConfiguredGoTools } from './getConfiguredGoTools';
-export { getCurrentGoPath } from './getCurrentGoPath';
-export { getCurrentGoRoot } from './getCurrentGoRoot';
-export { extractFunction, extractVariable } from '../goDoctor';
-export { runFillStruct, runRefillStruct } from '../goFillStruct';
-export { implCursor } from '../goImpl';
-export { addTags, removeTags } from '../goModifytags';
-export * from '../goTest';
-export { installTools } from './installTools';
-export { runBuilds } from './runBuilds';
-export { showCommands } from './showCommands';
-export { startDebugSession } from './startDebugSession';
-export { startLanguageServer } from './startLanguageServer';
-export { toggleGCDetails } from './toggleGCDetails';
+// export { applyCoverprofile } from './applyCoverprofile';
+// export { getConfiguredGoTools } from './getConfiguredGoTools';
+// export { getCurrentGoPath } from './getCurrentGoPath';
+// export { getCurrentGoRoot } from './getCurrentGoRoot';
+// export { extractFunction, extractVariable } from '../goDoctor';
+export { runRefillStruct } from '../goFillStruct';
+// export { implCursor } from '../goImpl';
+// export { addTags, removeTags } from '../goModifytags';
+// export * from '../goTest';
+// export { installTools } from './installTools';
+// export { runBuilds } from './runBuilds';
+// export { showCommands } from './showCommands';
+// export { startDebugSession } from './startDebugSession';
+// export { startLanguageServer } from './startLanguageServer';
+// export { toggleGCDetails } from './toggleGCDetails';
 
 type CommandCallback<T extends unknown[]> = (...args: T) => Promise<unknown> | unknown;
 

@@ -30,15 +30,15 @@ export const runRefillStruct: CommandFactory = () => (editor = vscode.window.act
 	return execFillStruct(editor, args, 'refillstruct');
 };
 
-export const runFillStruct: CommandFactory = () => (editor = vscode.window.activeTextEditor) => {
-	if (!editor) return Promise.resolve();
-	const args = getCommonArgs(editor);
-	if (!args) {
-		return Promise.reject('No args');
-	}
+// export const runFillStruct: CommandFactory = () => (editor = vscode.window.activeTextEditor) => {
+// 	if (!editor) return Promise.resolve();
+// 	const args = getCommonArgs(editor);
+// 	if (!args) {
+// 		return Promise.reject('No args');
+// 	}
 
-	return execFillStruct(editor, args, 'fillstruct');
-};
+// 	return execFillStruct(editor, args, 'fillstruct');
+// };
 
 function getCommonArgs(editor: vscode.TextEditor): string[] | undefined {
 	if (!editor) {

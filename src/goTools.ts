@@ -11,8 +11,8 @@ import moment = require('moment');
 import path = require('path');
 import semver = require('semver');
 import util = require('util');
-import { getFormatTool, usingCustomFormatTool } from './language/legacy/goFormat';
-import { goLiveErrorsEnabled } from './language/legacy/goLiveErrors';
+// import { getFormatTool, usingCustomFormatTool } from './language/legacy/goFormat';
+// import { goLiveErrorsEnabled } from './language/legacy/goLiveErrors';
 import { allToolsInformation } from './goToolsInformation';
 import { getBinPath, GoVersion } from './util';
 
@@ -191,9 +191,9 @@ export function getConfiguredTools(
 
 	// Only add format tools if the language server is disabled or the
 	// format tool is known to us.
-	if (goConfig['useLanguageServer'] === false || usingCustomFormatTool(goConfig)) {
-		maybeAddTool(getFormatTool(goConfig));
-	}
+	// if (goConfig['useLanguageServer'] === false || usingCustomFormatTool(goConfig)) {
+	// 	maybeAddTool(getFormatTool(goConfig));
+	// }
 
 	// Add the linter that was chosen by the user, but don't add staticcheck
 	// if it is enabled via gopls.
@@ -209,9 +209,9 @@ export function getConfiguredTools(
 		maybeAddTool('gopls');
 	}
 
-	if (goLiveErrorsEnabled()) {
-		maybeAddTool('gotype-live');
-	}
+	// if (goLiveErrorsEnabled()) {
+	// 	maybeAddTool('gotype-live');
+	// }
 
 	return tools;
 }

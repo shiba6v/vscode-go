@@ -11,13 +11,13 @@ import { toolExecutionEnvironment } from './goEnv';
 import { isModSupported } from './goModules';
 import { getNonVendorPackages } from './goPackages';
 import { diagnosticsStatusBarItem, outputChannel } from './goStatus';
-import { getTestFlags } from './testUtils';
+// import { getTestFlags } from './testUtils';
 import {
 	getCurrentGoPath,
 	getModuleCache,
 	getTempFilePath,
 	getWorkspaceFolderPath,
-	handleDiagnosticErrors,
+	// handleDiagnosticErrors,
 	ICheckResult,
 	runTool
 } from './util';
@@ -49,17 +49,17 @@ export function buildCode(buildWorkspace?: boolean): CommandFactory {
 		diagnosticsStatusBarItem.show();
 		diagnosticsStatusBarItem.text = 'Building...';
 
-		isModSupported(documentUri).then((isMod) => {
-			goBuild(documentUri, isMod, goConfig, buildWorkspace)
-				.then((errors) => {
-					handleDiagnosticErrors(goCtx, editor?.document, errors, goCtx.buildDiagnosticCollection);
-					diagnosticsStatusBarItem.hide();
-				})
-				.catch((err) => {
-					vscode.window.showInformationMessage('Error: ' + err);
-					diagnosticsStatusBarItem.text = 'Build Failed';
-				});
-		});
+		// isModSupported(documentUri).then((isMod) => {
+		// 	goBuild(documentUri, isMod, goConfig, buildWorkspace)
+		// 		.then((errors) => {
+		// 			handleDiagnosticErrors(goCtx, editor?.document, errors, goCtx.buildDiagnosticCollection);
+		// 			diagnosticsStatusBarItem.hide();
+		// 		})
+		// 		.catch((err) => {
+		// 			vscode.window.showInformationMessage('Error: ' + err);
+		// 			diagnosticsStatusBarItem.text = 'Build Failed';
+		// 		});
+		// });
 	};
 }
 
@@ -107,11 +107,7 @@ export async function goBuild(
 	const buildEnv = toolExecutionEnvironment();
 	const tmpPath = getTempFilePath('go-code-check');
 	const isTestFile = fileUri && fileUri.fsPath.endsWith('_test.go');
-	const buildFlags: string[] = isTestFile
-		? getTestFlags(goConfig)
-		: Array.isArray(goConfig['buildFlags'])
-		? [...goConfig['buildFlags']]
-		: [];
+	const buildFlags: string[] = Array.isArray(goConfig['buildFlags']) ? [...goConfig['buildFlags']] : [];
 	const buildArgs: string[] = isTestFile ? ['test', '-c'] : ['build'];
 
 	if (goConfig['installDependenciesWhenBuilding'] === true && !isMod) {
